@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+   <meta charset="UTF-8">
+   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+   <title>IPL Data Visualization</title>
+   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+   <style>
+       body {
+           font-family: Arial, sans-serif;
+           margin: 0;
+           padding: 0;
+           text-align: center;
+       }
+       h1 {
+           margin-top: 20px;
+       }
+       #myChart {
+           margin: 20px auto;
+       }
+       .player-list {
+           display: flex;
+           flex-wrap: wrap;
+           justify-content: center;
+           gap: 20px;
+           padding: 20px;
+       }
+       .player-item {
+           width: 150px;
+           text-align: center;
+       }
+       .player-item img {
+           width: 100px;
+           height: 100px;
+           object-fit: cover;
+           border-radius: 50%;
+       }
+       .player-item p {
+           margin: 5px 0;
+       }
+   </style>
+</head>
+<body>
+   <h1>Top IPL Players by Runs</h1>
+   <canvas id="myChart" width="600" height="400"></canvas>
+   <div class="player-list" id="playerList"></div>
+   <script>
+       async function fetchData() {
+           const response = await fetch('http://localhost:3000/data');
+           const data = await response.json();
+           return data;
+       }
+
+
+       async function createChart() {
+           const data = await fetchData();
+           const ctx = document.getElementById('myChart').getContext('2d');
+           const chart = new Chart(ctx, {
+               type: 'bar',
+               data: {
+                   labels: data.map(player => player.player),
+                   datasets: [{
+                       label: 'Runs',
+                       data: data.map(player => player.runs),
+                       backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                       borderColor: 'rgba(75, 192, 192, 1)',
+                       borderWidth: 1
+                   }]
+               },
+               options: {
+                   indexAxis: 'y',
+                   scales: {
+                       x: {
+                           beginAtZero: true
+                       }
+                   }
+               }
+           });
+
+
+           // Populate the player list
+           const playerList = document.getElementById('playerList');
+           data.forEach(player => {
+               const playerItem = document.createElement('div');
+               playerItem.classList.add('player-item');
+               playerItem.innerHTML = `
+                   <img src="${player.playerImage}" alt="${player.player}">
+                   <p>${player.player}</p>
+                   <p>${player.runs} runs</p>
+                   <p>${player.team}</p>
+               `;
+               playerList.appendChild(playerItem);
+           });
+       }
+
+
+       createChart();
+   </script>
+</body>
+</html>
+
+
+
+
